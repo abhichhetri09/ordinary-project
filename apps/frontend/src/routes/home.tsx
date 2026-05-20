@@ -15,12 +15,34 @@ const Home = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
+
     async function loadUsers() {
-      const data = await apiFetch<Users[]>("user");
-      setUsers(data);
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await apiFetch<Users[]>("user");
+        if (!cancelled) setUsers(data);
+      } catch (err) {
+        if (!cancelled) {
+          setError(
+            err instanceof Error ? err.message : "Failed to load users",
+          );
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     }
+
     loadUsers();
-  });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+
   return (
     <div>
       <h1>Users</h1>
