@@ -2,12 +2,12 @@ import express from "express";
 import { config } from "dotenv";
 import path from "path";
 import userRouter from "./routes/user/user";
-
+import cors from "cors";
 config({ path: path.join(__dirname, "../.env") });
 
 const app = express();
 const port = process.env.PORT;
-
+app.use(cors());
 app.use(express.json());
 app.use("/user", userRouter);
 app.get("/", (req, res) => {
