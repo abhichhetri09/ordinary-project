@@ -7,6 +7,12 @@ export default function Layout() {
         <NavLink to="/" end>
           Home
         </NavLink>
+        <NavLink to="/login" end>
+          login
+        </NavLink>
+        <NavLink to="/signup" end>
+          signup
+        </NavLink>
       </nav>
       <main>
         <Outlet />
