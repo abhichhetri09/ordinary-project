@@ -3,6 +3,8 @@ import { config } from "dotenv";
 import path from "path";
 import userRouter from "./routes/user/user";
 import cors from "cors";
+import { connectDb } from "./db/db";
+
 config({ path: path.join(__dirname, "../.env") });
 
 const app = express();
@@ -14,6 +16,13 @@ app.get("/", (req, res) => {
   return res.json("hello");
 });
 
-app.listen(port, () => {
-  console.log("server running in port ", port);
-});
+connectDb()
+  .then(() => {
+    app.listen(port, () => {
+      console.log("server running in port ", port);
+    });
+  })
+  .catch((err) => {
+    console.error("Database connection failed:", err);
+    process.exit(1);
+  });
