@@ -15,8 +15,13 @@ authRouter.post("/login", async (req, res) => {
     [email],
   );
 
-  if (!user || user.password !== password) {
-    return res.status(401).json({ message: "Invalid email or password" });
+  if (!user) {
+    return res
+      .status(401)
+      .json({ message: "No account found with this email" });
+  }
+  if (user.password !== password) {
+    return res.status(401).json({ message: "Invalid password" });
   }
 
   const { password: _, ...safeUser } = user;
