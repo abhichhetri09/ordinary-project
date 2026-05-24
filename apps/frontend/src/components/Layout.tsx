@@ -1,20 +1,11 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
+import Navbar from "./Navbar/Navbar";
 
 export default function Layout() {
   return (
     <>
-      <nav>
-        <NavLink to="/" end>
-          Home
-        </NavLink>
-        <NavLink to="/login" end>
-          login
-        </NavLink>
-        <NavLink to="/signup" end>
-          signup
-        </NavLink>
-      </nav>
-      <main>
+      <Navbar />
+      <main className="flex-1 p-6">
         <Outlet />
       </main>
     </>

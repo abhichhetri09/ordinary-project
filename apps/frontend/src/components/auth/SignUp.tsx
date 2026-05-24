@@ -1,6 +1,7 @@
-import React, { useState } from "react";
-import { apiFetch } from "../../utils/api";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiFetch } from "../../utils/api";
+import { Alert, Button, Card, Input, PageHeader } from "../ui";
 
 type User = {
   id: number;
@@ -8,65 +9,81 @@ type User = {
   email: string;
   phone?: string;
 };
+
 const SignUp = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  async function handleSubmit(e: React.SubmitEvent) {
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
+    setLoading(true);
+
     try {
       await apiFetch<User>("user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password, phone }),
+        body: JSON.stringify({ name, email, phone, password }),
       });
-
       navigate("/login");
     } catch {
-      setError("Could not create user");
+      setError("Could not create user. Email may already exist.");
+    } finally {
+      setLoading(false);
     }
   }
+
   return (
-    <div>
-      <h1>Create account</h1>
-      <div
-        style={{
-          padding: "20px",
-          gap: "20px",
-          backgroundColor: "white",
-          flexDirection: "row",
-        }}
-      >
-        <form onSubmit={handleSubmit}>
-          <input
-            placeholder="Name"
+    <section className="mx-auto flex max-w-md flex-col">
+      <PageHeader title="Create account" subtitle="Sign up to get started" />
+      <Card>
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col items-center gap-3"
+        >
+          <Input
+            label="Name"
+            name="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            required
           />
-          <input
-            placeholder="Email"
-            value={email}
+          <Input
+            label="Email"
+            name="email"
             type="email"
+            value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
           />
-          <input
-            placeholder="Phone"
+          <Input
+            label="Phone"
+            name="phone"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
           />
-          <input
-            placeholder="Passoword"
+          <Input
+            label="Password"
+            name="password"
+            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
           />
-          <button type="submit">sign up</button>
+          {error && <Alert message={error} />}
+          <Button
+            type="submit"
+            label={loading ? "Please wait..." : "Sign up"}
+            disabled={loading}
+          />
         </form>
-      </div>
-    </div>
+      </Card>
+    </section>
   );
 };
 
