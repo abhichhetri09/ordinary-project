@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { apiFetch } from "../utils/api";
-import { Alert, PageHeader, Spinner } from "../components/ui";
+import { Alert, Button, PageHeader, Spinner } from "../components/ui";
+import { useNavigate } from "react-router-dom";
 
 type User = {
   id: number;
@@ -13,7 +14,7 @@ const Home = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  const navigate = useNavigate();
   useEffect(() => {
     let cancelled = false;
 
@@ -25,9 +26,7 @@ const Home = () => {
         if (!cancelled) setUsers(data);
       } catch (err) {
         if (!cancelled) {
-          setError(
-            err instanceof Error ? err.message : "Failed to load users",
-          );
+          setError(err instanceof Error ? err.message : "Failed to load users");
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -39,6 +38,30 @@ const Home = () => {
       cancelled = true;
     };
   }, []);
+  const handleClick = (id: number) => {
+    navigate(`/user/${id}/edit`);
+  };
+
+  const userItems = users.map((user) => {
+    return (
+      <li
+        key={user.id}
+        className="flex flex-row justify-between items-center p-2 rounded border border-border bg-surface "
+      >
+        <div>
+          <span className="font-semibold text-foreground">{user.name}</span>
+          <span className="text-muted"> — {user.email}</span>
+        </div>
+        <div>
+          <Button
+            label="edit"
+            variant="ghost"
+            onClick={() => handleClick(user.id)}
+          />
+        </div>
+      </li>
+    );
+  });
 
   if (loading) return <Spinner label="Loading users..." />;
   if (error) return <Alert message={error} variant="error" />;
@@ -50,15 +73,7 @@ const Home = () => {
         <p className="text-muted">No users yet.</p>
       ) : (
         <ul className="mx-auto flex max-w-lg flex-col gap-2 text-left">
-          {users.map((user) => (
-            <li
-              key={user.id}
-              className="rounded border border-border bg-surface px-4 py-3"
-            >
-              <span className="font-semibold text-foreground">{user.name}</span>
-              <span className="text-muted"> — {user.email}</span>
-            </li>
-          ))}
+          {userItems}
         </ul>
       )}
     </section>

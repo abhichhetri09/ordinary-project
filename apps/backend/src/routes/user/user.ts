@@ -8,6 +8,15 @@ userRouter.get("/", async (req, res) => {
   return res.json(users);
 });
 
+userRouter.get("/:id", async (req, res) => {
+  const { id } = req.params;
+  const user = await db.one("SELECT * FROM users WHERE id = $1", [id]);
+  if (!user) {
+    return res.status(404).json({ success: false, message: "User not found" });
+  }
+  return res.json({ success: true, user });
+});
+
 userRouter.post("/", async (req, res) => {
   const { name, email, phone, password } = req.body;
   const user = await db.one(
@@ -20,8 +29,9 @@ userRouter.post("/", async (req, res) => {
 userRouter.patch("/:id", async (req, res) => {
   const { id } = req.params;
   const { name, email, phone, password } = req.body;
-  const user = await db.one(
-    `
+  try {
+    const user = await db.one(
+      `
         UPDATE users SET
           name = COALESCE($1, name), 
           email = COALESCE($2, email), 
@@ -30,8 +40,13 @@ userRouter.patch("/:id", async (req, res) => {
           updated_at = NOW()
         WHERE id = $5
         RETURNING *`,
-    [name ?? null, email ?? null, phone ?? null, password ?? null, id],
-  );
-  return res.json(user);
+      [name ?? null, email ?? null, phone ?? null, password ?? null, id],
+    );
+    return res.json({ success: true, user });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ success: false, message: "Failed to update user" });
+  }
 });
 export default userRouter;

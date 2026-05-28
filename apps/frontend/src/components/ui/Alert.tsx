@@ -1,7 +1,6 @@
 import { cn } from "../../utils/cn";
+import { inferAlertVariant, type AlertVariant } from "../../utils/alert";
 import { bg, text } from "../../styles/colors";
-
-type AlertVariant = "error" | "success" | "info";
 
 type AlertProps = {
   message: string;
@@ -15,17 +14,15 @@ const variantClass: Record<AlertVariant, string> = {
   info: cn(bg.primary10, text.foreground, "border-primary/20"),
 };
 
-export function Alert({
-  message,
-  variant = "error",
-  className,
-}: AlertProps) {
+export function Alert({ message, variant, className }: AlertProps) {
+  const resolved = variant ?? inferAlertVariant(message);
+
   return (
     <p
       role="alert"
       className={cn(
         "rounded border px-3 py-2 text-sm",
-        variantClass[variant],
+        variantClass[resolved],
         className,
       )}
     >
@@ -33,3 +30,5 @@ export function Alert({
     </p>
   );
 }
+
+export type { AlertVariant };

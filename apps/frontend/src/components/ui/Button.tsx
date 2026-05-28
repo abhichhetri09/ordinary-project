@@ -15,10 +15,15 @@ type ButtonProps = {
   disabled?: boolean;
   className?: string;
   onClick?: () => void;
+  loading?: boolean;
 };
 
 const variantClass: Record<ButtonVariant, string> = {
-  primary: cn(bg.primary, text.onPrimary, "hover:opacity-90"),
+  primary: cn(
+    bg.primary,
+    text.onPrimary,
+    "hover:bg-primary-10 p-2 rounded-md text-sm animate-pulse transition-all duration-1000  hover:text-white",
+  ),
   secondary: cn(
     "border-2 border-primary bg-transparent",
     text.primary,
@@ -45,7 +50,7 @@ const sizeClass: Record<ButtonSize, string> = {
 };
 
 const baseClass =
-  "inline-flex items-center justify-center font-semibold transition-all duration-150";
+  "inline-flex items-center justify-center gap-2 font-semibold transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-60";
 
 function buttonClasses(
   variant: ButtonVariant,
@@ -84,6 +89,15 @@ function buttonClasses(
   return cn(baseClass, variantClass[variant], sizeClass[size], className);
 }
 
+function ButtonSpinner() {
+  return (
+    <span
+      className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+      aria-hidden
+    />
+  );
+}
+
 export function Button({
   label,
   to,
@@ -94,6 +108,7 @@ export function Button({
   disabled,
   className,
   onClick,
+  loading = false,
 }: ButtonProps) {
   if (to) {
     return (
@@ -109,14 +124,18 @@ export function Button({
     );
   }
 
+  const isDisabled = disabled || loading;
+
   return (
     <button
       type={type}
-      disabled={disabled}
+      disabled={isDisabled}
       className={buttonClasses(variant, size, className)}
       onClick={onClick}
+      aria-busy={loading}
     >
-      {label}
+      {loading && <ButtonSpinner />}
+      <span>{label}</span>
     </button>
   );
 }
